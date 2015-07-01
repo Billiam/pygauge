@@ -4,7 +4,7 @@ import asyncore
 import serial
 import yaml
 import os.path
-
+import sys
 class Sender:
     def __init__(self, serial_name):
         self.ser = serial.Serial(
@@ -77,11 +77,10 @@ class Receiver(asyncore.dispatcher):
 
 
 if __name__ == '__main__':
-    try:
-        approot = os.path.dirname(os.path.abspath(__file__))
-    except NameError:  # We are the main py2exe script, not a module
-        import sys
-        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+    if getattr(sys, 'frozen', None):
+        approot = os.path.dirname(sys.executable)
+    else:
+        approot = os.path.dirname(os.path.realpath(__file_))
 
     try:
         config = yaml.load(file(approot + '/config.yml', 'r'))
