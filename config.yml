@@ -1,0 +1,4 @@
+arduino_port: COM3
+telemetry_server:
+    host: 127.0.0.1
+    port: 20777

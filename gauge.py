@@ -2,6 +2,8 @@ import socket
 import struct
 import asyncore
 import serial
+import yaml
+import os.path
 
 class Sender:
     def __init__(self, serial_name):
@@ -75,6 +77,18 @@ class Receiver(asyncore.dispatcher):
 
 
 if __name__ == '__main__':
-    arduino = Sender('COM3')
-    game = Receiver(('127.0.0.1', 20777), arduino)
+    try:
+        approot = os.path.dirname(os.path.abspath(__file__))
+    except NameError:  # We are the main py2exe script, not a module
+        import sys
+        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    try:
+        config = yaml.load(file(approot + '/config.yml', 'r'))
+    except yaml.YAMLError, exc:
+        print "Error in configuration file:", exc
+
+    arduino = Sender(config['arduino_port'])
+    server = (config['telemetry_server']['host'], config['telemetry_server']['port'])
+    game = Receiver(server, arduino)
     asyncore.loop()
