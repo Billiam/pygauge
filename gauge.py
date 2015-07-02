@@ -7,14 +7,19 @@ import os.path
 import sys
 class Sender:
     def __init__(self, serial_name):
-        self.ser = serial.Serial(
-            serial_name, 
-            115200, 
-            writeTimeout=0, 
-            timeout=0, 
-            parity=serial.PARITY_NONE, 
-            stopbits=serial.STOPBITS_ONE
-        )
+        try:
+            self.ser = serial.Serial(
+                serial_name, 
+                115200, 
+                writeTimeout=0, 
+                timeout=0, 
+                parity=serial.PARITY_NONE, 
+                stopbits=serial.STOPBITS_ONE
+            )
+        except serial.serialutil.SerialException, exc:
+            sys.exit("Could not connect to serial port: %s" % serial_name)
+
+        print "Connected to serial port: %s" % serial_name
 
     def send(self, data):
         self.ser.write(struct.pack('>cHHchcB', 'R', data['rpm'], data['max_rpm'], 'S', data['speed'], 'G', data['gear']))
@@ -28,17 +33,14 @@ class Receiver(asyncore.dispatcher):
         self.reconnect()
 
     def reconnect(self):
+        self.received_data = False
+
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.bind(self.address)
+        print "Waiting for data on %s:%s" % self.address
 
     def writable(self):
         return False
-
-    def handle_accept(self):
-        print 'accepted'
-
-    def handle_connect(self):
-        print 'connected!'
 
     def handle_expt(self):
         print 'exception occurred!'
@@ -47,15 +49,15 @@ class Receiver(asyncore.dispatcher):
     def readable(self):
         return True
 
-    def handle_close(self):
-        print 'closing connection'
-        self.close()
-
     def handle_read(self):
         data = self.recv(512)
-
+        
         if not data:
             return
+        
+        if not self.received_data:
+            self.received_data = True
+            print "Receiving data on %s:%s" % self.address
 
         self.parse(data)
         
@@ -80,7 +82,7 @@ if __name__ == '__main__':
     if getattr(sys, 'frozen', None):
         approot = os.path.dirname(sys.executable)
     else:
-        approot = os.path.dirname(os.path.realpath(__file_))
+        approot = os.path.dirname(os.path.realpath(__file__))
 
     try:
         config = yaml.load(file(approot + '/config.yml', 'r'))
