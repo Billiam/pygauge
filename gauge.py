@@ -28,7 +28,7 @@ class Receiver(asyncore.dispatcher):
     def __init__(self, address, sender, speed_units):
         asyncore.dispatcher.__init__(self)
         self.sender = sender
-        self.speed_modifier = speed_units == 'mph' and 1 or 0.625
+        self.speed_modifier = speed_units == 'mph' and 0.6214 or 1
         self.address = address
         self.reconnect()
 
