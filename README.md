@@ -1,7 +1,7 @@
 # PyGauge
 PyGauge is a Python service (also available as a pre-built exe, see [releases](https://github.com/Billiam/pygauge/releases/latest)) and accompanying Arduino sketch to display DiRT Rally telemetry data (currently gear, speed, and rev lights) on the TM1638 LED module.
 
-Additional information is available here: http://www.billiam.org/2015/06/30/dirt-rally-shift-light-tm1648-arduino/
+Additional information is available here: http://www.billiam.org/2015/07/02/dirt-rally-shift-light-tm1648-arduino/
 
 ## Prerequisites
 Instructions assume that you have an Arduino connected via USB serial that you can upload sketches to, and that is hooked up to the TM1638 LED module.
