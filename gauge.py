@@ -25,10 +25,10 @@ class Sender:
         self.ser.write(struct.pack('>cHHchcB', 'R', data['rpm'], data['max_rpm'], 'S', data['speed'], 'G', data['gear']))
 
 class Receiver(asyncore.dispatcher):
-    def __init__(self, address, sender):
+    def __init__(self, address, sender, speed_units):
         asyncore.dispatcher.__init__(self)
         self.sender = sender
-
+        self.speed_modifier = speed_units == 'mph' and 1 or 0.625
         self.address = address
         self.reconnect()
 
@@ -70,7 +70,7 @@ class Receiver(asyncore.dispatcher):
         max_rpm = stats[63] * 10
 
         data = {
-            'speed': int(stats[7] * 3.6 * 0.625), # mph (remove '* 0.625' for kph)
+            'speed': int(stats[7] * 3.6 * self.speed_modifier),
             'gear': int(stats[33]),
             'rpm': int(stats[37] * 10),
             'max_rpm': int(stats[63] * 10)
@@ -91,5 +91,7 @@ if __name__ == '__main__':
 
     arduino = Sender(config['arduino_port'])
     server = (config['telemetry_server']['host'], config['telemetry_server']['port'])
-    game = Receiver(server, arduino)
+    speed_units = config['speed_units']
+
+    game = Receiver(server, arduino, speed_units)
     asyncore.loop()
