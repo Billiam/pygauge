@@ -116,11 +116,11 @@ void loop() {
      char* neutral = "n";                // sets the character for neutral
      char* reverse = "r";                // sets the character for reverse
 
-     if (gear >= 1 and gear <10 ){
+     if (gear >= -1 and gear <10 ){
         module.setDisplayDigit(gear, 7, false);
       } else if (gear == 0){
         module.setDisplayToString(neutral, 0, 7);
-     } else if (gear == 10){
+     } else if (gear == 10 || gear == -1){
         module.setDisplayToString(reverse, 0, 7);
       }
 
